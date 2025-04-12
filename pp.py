@@ -39,10 +39,16 @@ class Player(GameSprite):
         
 racket1 = Player('Платформа.png', W//2, 10, 100, 25, 10)
 racket2 = Player('Платформа.png', W//2, H - 35, 100, 25, 10)
-ball = GameSprite('Мяч для пинг понга.jpg', W//2, H//2, 50, 50, 0)
+ball = GameSprite('Мяч_для_пинг_понга.png', W//2, H//2, 25, 25, 0)
 
-speed_x = 5
-speed_y = 5
+font.init()
+font1 = font.Font(None, 35)
+font2 = font.Font(None, 28)
+win_racket1 = font1.render('Player 1 wins', True, (180, 0 , 0))
+win_racket2 = font1.render('Player 2 wins', True, (180, 0 , 0))
+restart_game = font2.render('PRESS SPACE FOR RESTART GAME!', True, (255, 255, 255))
+speed_x = 3
+speed_y = 3
 
 game = True
 finish = False
@@ -54,22 +60,41 @@ while game:
     if finish != True:
         window.fill(background)
     
-    ball.rect.y += speed_y
-    ball.rect.x += speed_x
+        ball.rect.y += speed_y
+        ball.rect.x += speed_x
 
-    racket1.update_up()
-    racket2.update_down()
+        racket1.update_up()
+        racket2.update_down()
 
-    racket1.reset()
-    racket2.reset()
-    ball.reset()
+        racket1.reset()
+        racket2.reset()
+        ball.reset()
 
-    if ball.rect.x > W-70 or ball.rect.x < 0:
-        speed_y *= -1
+        if ball.rect.x > W-70 or ball.rect.x < 0:
+            speed_x *= -1
 
-    if sprite.collide_rect(racket1, ball) or sprite.collide_rect(racket2, ball):
-        speed_x *= -1
-        speed_y *= 1
+        if sprite.collide_rect(racket1, ball) and speed_y < 0:
+            speed_x *= -1
+            speed_y *= -1
+        
+        if sprite.collide_rect(racket2, ball) and speed_y > 0:
+            speed_x *= -1
+            speed_y *= -1
+            
+        if ball.rect.y < 0:
+            finish = True
+            window.blit(win_racket1, (200, 200))
+            
+        if ball.rect.y > H:
+            finish = True
+            window.blit(win_racket2, (200, 200))
+    else:
+        window.blit(restart_game, (W//2 - 130, H//2 - 60))
+        keys_pressed = key.get_pressed()
+        if keys_pressed[K_SPACE]:
+            ball.rect.y = H//2
+            ball.rect.x = W//2
+            finish = False
 
     display.update()
     clock.tick(FPS)
